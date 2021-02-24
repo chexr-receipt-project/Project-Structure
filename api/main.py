@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from model.merchant import Transaction
 from mangum import Mangum
+import uvicorn
 
 app = FastAPI(title="Cherx API")
 
@@ -23,3 +24,6 @@ async def new_transaction(transaction: Transaction):
 
 
 handler = Mangum(app=app)
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8000)
