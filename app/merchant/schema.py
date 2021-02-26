@@ -15,8 +15,8 @@ class TransactionPaymentType(Enum):
 
 class TransactionPaymentCardDetails(BaseModel):
     bin: Optional[str] = Field(description="The BIN/INN of the card. This is the usually the first 6 digits of the "
-                                           "payment card.", regex="^d{4,8}")
-    last_four: Optional[str] = Field(description="Last 4 digits of the payment card", regex="^d(4)")
+                                           "payment card.")
+    last_four: Optional[str] = Field(description="Last 4 digits of the payment card")
     auth_code: str = Field(description="The authorization code used to match the payment with the bank clearing "
                                        "process")
     scheme: str = Field(description="The scheme of this card. For example: MASTERCARD, VISA, AMEX, etc")

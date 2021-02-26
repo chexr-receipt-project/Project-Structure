@@ -7,3 +7,9 @@ services:
       - .env
     ports:
       - "8000:8000"
+  database:
+    image: mongo
+    ports:
+    - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=chexr

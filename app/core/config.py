@@ -1,10 +1,10 @@
-from typing import Any, Dict, List, Optional, Union
-
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
     PROJECT_NAME: str
+    MONGO_URL: str
+    MONGO_DATABASE: str
 
     class Config:
         case_sensitive = True
