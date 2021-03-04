@@ -1,11 +1,12 @@
-from pydantic import BaseModel, Field
-from enum import Enum
 from datetime import datetime
-from decimal import Decimal
+from enum import Enum
 from typing import List, Optional
 
+from bson import Decimal128
+from odmantic import Field, Model, EmbeddedModel
 
-class TransactionPaymentType(Enum):
+
+class TransactionPaymentType(str,Enum):
     CARD = "CARD"
     CASH = "CASH"
     CHECQUE = "CHECQUE"
@@ -13,7 +14,7 @@ class TransactionPaymentType(Enum):
     OTHER = "OTHER"
 
 
-class TransactionPaymentCardDetails(BaseModel):
+class TransactionPaymentCardDetails(EmbeddedModel):
     bin: Optional[str] = Field(description="The BIN/INN of the card. This is the usually the first 6 digits of the "
                                            "payment card.")
     last_four: Optional[str] = Field(description="Last 4 digits of the payment card")
@@ -22,10 +23,10 @@ class TransactionPaymentCardDetails(BaseModel):
     scheme: str = Field(description="The scheme of this card. For example: MASTERCARD, VISA, AMEX, etc")
 
 
-class TransactionPayment(BaseModel):
+class TransactionPayment(EmbeddedModel):
     type: TransactionPaymentType
     method: str = Field(description="Method used to process this payment like `Contactless`, `Pin` etc")
-    amount: Decimal = Field(description="The amount paid in this payment method")
+    amount: Decimal128 = Field(description="The amount paid in this payment method")
     timestamp: Optional[datetime] = Field(description="The full date time (RFC3339), at second resolution or better. "
                                                       "This is for this particular payment and should be the "
                                                       "transaction authorization date if possible, or a timestamp "
@@ -34,29 +35,29 @@ class TransactionPayment(BaseModel):
     card: Optional[TransactionPaymentCardDetails] = Field(description="This field is mandatory in card payments")
 
 
-class TransactionItem(BaseModel):
+class TransactionItem(EmbeddedModel):
     sku: str = Field(..., description="`Stock Keeping Unit` that uniquely identify the item on merchant database", min_length=1)
     description: str = Field(..., description="Human friendly description", min_length=1)
     category: str
-    quantity: Decimal = Field(description="Quantity purchases. It can be in fractions. Use the field `unity` if you "
+    quantity: Decimal128 = Field(description="Quantity purchases. It can be in fractions. Use the field `unity` if you "
                                           "want to append a unity")
     unity: str = Field(description="The unity that should be appended to the quantity. Eg `kg`", min_length=1)
-    price: Decimal = Field(description="The amount of a single unit of the item, including all taxes")
-    tax: Decimal = Field(description="The tax of a single unit")
+    price: Decimal128 = Field(description="The amount of a single unit of the item, including all taxes")
+    tax: Decimal128 = Field(description="The tax of a single unit")
     # There are a lot more attributes to add
 
 
-class TransactionStatus(Enum):
+class TransactionStatus(str,Enum):
     """Transaction status"""
     PENDING = "PENDING"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
 
 
-class GeographicPoint(BaseModel):
-    latitude: Decimal = Field(..., description="latitude of the location in decimal degrees using the WGS84 Geodetic "
+class GeographicPoint(EmbeddedModel):
+    latitude: Decimal128 = Field(..., description="latitude of the location in decimal degrees using the WGS84 Geodetic "
                                              "system.")
-    longitude: Decimal = Field(..., description="Longitude of the location in decimal degrees using the WGS84 Geodetic "
+    longitude: Decimal128 = Field(..., description="Longitude of the location in decimal degrees using the WGS84 Geodetic "
                                               "system.")
 
 
@@ -69,8 +70,9 @@ class Address(GeographicPoint):
     sovereign: Optional[str]
 
 
-class Transaction(BaseModel):
-    id: str = Field(..., description="Merchant unique transaction id", min_length=1)
+class Transaction(Model):
+    transaction_id: str = Field(..., description="Merchant unique transaction id", min_length=1)
+    merchant_id: Optional[str]
     store_id: str = Field(..., description="Store unique identifier. Use a unique identifier if it is a single store "
                                            "merchant", min_length=1)
     terminal_id: Optional[str] = Field(description="Optional value to uniquely identify different terminals in the "
@@ -83,9 +85,9 @@ class Transaction(BaseModel):
 
     transaction_date: datetime = Field(default_factory=datetime.utcnow, description="Transaction date (UTC timezone)")
 
-    amount: Decimal = Field(..., description="Total amount for this transaction. Include all taxes and discounts")
+    amount: Decimal128 = Field(..., description="Total amount for this transaction. Include all taxes and discounts", )
     currency: str = Field(..., description="The ISO-4217 code of the currency", regex="^[A-Z]{3}$")
-    tax: Optional[Decimal]
+    tax: Optional[Decimal128]
     items: List[TransactionItem]
     payments: List[TransactionPayment]
     status: TransactionStatus = TransactionStatus.COMPLETED
