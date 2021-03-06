@@ -2,7 +2,6 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from bson import Decimal128
 from odmantic import Field, Model, EmbeddedModel
 
 
@@ -26,7 +25,7 @@ class TransactionPaymentCardDetails(EmbeddedModel):
 class TransactionPayment(EmbeddedModel):
     type: TransactionPaymentType
     method: str = Field(description="Method used to process this payment like `Contactless`, `Pin` etc")
-    amount: Decimal128 = Field(description="The amount paid in this payment method")
+    amount: float = Field(description="The amount paid in this payment method")
     timestamp: Optional[datetime] = Field(description="The full date time (RFC3339), at second resolution or better. "
                                                       "This is for this particular payment and should be the "
                                                       "transaction authorization date if possible, or a timestamp "
@@ -39,11 +38,11 @@ class TransactionItem(EmbeddedModel):
     sku: str = Field(..., description="`Stock Keeping Unit` that uniquely identify the item on merchant database", min_length=1)
     description: str = Field(..., description="Human friendly description", min_length=1)
     category: str
-    quantity: Decimal128 = Field(description="Quantity purchases. It can be in fractions. Use the field `unity` if you "
+    quantity: float = Field(description="Quantity purchases. It can be in fractions. Use the field `unity` if you "
                                           "want to append a unity")
     unity: str = Field(description="The unity that should be appended to the quantity. Eg `kg`", min_length=1)
-    price: Decimal128 = Field(description="The amount of a single unit of the item, including all taxes")
-    tax: Decimal128 = Field(description="The tax of a single unit")
+    price: float = Field(description="The amount of a single unit of the item, including all taxes")
+    tax: float = Field(description="The tax of a single unit")
     # There are a lot more attributes to add
 
 
@@ -55,9 +54,9 @@ class TransactionStatus(str,Enum):
 
 
 class GeographicPoint(EmbeddedModel):
-    latitude: Decimal128 = Field(..., description="latitude of the location in decimal degrees using the WGS84 Geodetic "
+    latitude: float = Field(..., description="latitude of the location in decimal degrees using the WGS84 Geodetic "
                                              "system.")
-    longitude: Decimal128 = Field(..., description="Longitude of the location in decimal degrees using the WGS84 Geodetic "
+    longitude: float = Field(..., description="Longitude of the location in decimal degrees using the WGS84 Geodetic "
                                               "system.")
 
 
@@ -85,9 +84,9 @@ class Transaction(Model):
 
     transaction_date: datetime = Field(default_factory=datetime.utcnow, description="Transaction date (UTC timezone)")
 
-    amount: Decimal128 = Field(..., description="Total amount for this transaction. Include all taxes and discounts", )
+    amount: float = Field(..., description="Total amount for this transaction. Include all taxes and discounts", )
     currency: str = Field(..., description="The ISO-4217 code of the currency", regex="^[A-Z]{3}$")
-    tax: Optional[Decimal128]
+    tax: Optional[float]
     items: List[TransactionItem]
     payments: List[TransactionPayment]
     status: TransactionStatus = TransactionStatus.COMPLETED

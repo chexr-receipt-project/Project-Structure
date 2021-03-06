@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
+from ..model.merchant_repository import get_merchant_transaction, insert_merchant_transaction
 from ..schema import Transaction
 from ...core.database import get_database
 from ...core.utils import CHEXR_ENCODER
-from ..model.merchant_repository import get_merchant_transaction, insert_merchant_transaction
-from simplejson import dump
+from ...core.queue import send_message
+from ...core.config import settings
 
 ## FIXME will be recovered by authentication
 MERCHANT_ID = "MERCHANTID"
@@ -29,7 +29,9 @@ async def new_transaction(transaction: Transaction, database=Depends(get_databas
 
     saved_transaction = await insert_merchant_transaction(database, MERCHANT_ID, transaction)
 
-    return jsonable_encoder(saved_transaction, custom_encoder=CHEXR_ENCODER)
+    send_message(settings.MATCHING_QUEUE_URL, f'transaction_id:{saved_transaction.id}')
+
+    return saved_transaction
 
 
 
