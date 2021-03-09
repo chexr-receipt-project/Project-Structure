@@ -20,7 +20,7 @@ class BankTransaction(Model):
                                                "get it with your authentication. Different bank_id from authentication"
                                                "will not be accepted")
     card: Card = Field(description="Details about the payment card")
-    customer_id: str = Field(description="Unique customer identifier on the bank")
+    customer_id: str = Field(description="Unique customer identifier at the bank")
     transaction_date: datetime = Field(description="The full date time (RFC3339), at second resolution or better. "
                                                    "This must be the transaction authorization date - not the "
                                                    "settlement date.")

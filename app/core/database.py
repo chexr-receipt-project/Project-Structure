@@ -2,6 +2,7 @@ from motor import motor_asyncio
 from .config import settings
 from odmantic import AIOEngine
 from ..merchant.model import merchant_repository
+from ..bank.model import bank_repository
 from logging import info
 
 class Database:
@@ -21,6 +22,7 @@ async def startup_db():
     db.engine = AIOEngine(motor_client=db.client, database=settings.MONGO_DATABASE)
     info("Initializing DB schema with indices")
     await merchant_repository.initialize_schema(db.engine)
+    await bank_repository.initialize_schema(db.engine)
 
 
 def close_db():
