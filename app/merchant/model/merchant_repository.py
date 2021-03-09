@@ -25,5 +25,7 @@ async def get_merchant_transaction(database: AIOEngine, merchant_id: str, transa
 
 async def insert_merchant_transaction(database: AIOEngine, merchant_id: str, transaction: Transaction) -> \
         Optional[Transaction]:
+    if transaction.id is not None:
+        raise ValueError("id must be empty")
     transaction.merchant_id = merchant_id
     return await database.save(transaction)
