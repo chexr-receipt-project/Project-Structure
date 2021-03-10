@@ -1,9 +1,10 @@
 from motor import motor_asyncio
 from .config import settings
 from odmantic import AIOEngine
-from ..merchant.model import merchant_repository
-from ..bank.model import bank_repository
+from chexr.merchant import merchant_repository
+from chexr.bank import bank_repository
 from logging import info
+
 
 class Database:
     client: motor_asyncio.AsyncIOMotorClient = None

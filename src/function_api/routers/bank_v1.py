@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 
-from ..schema import BankTransaction
-from ...core.config import settings
-from ...core.database import get_database
-from ...core.queue import send_message
-from ..model.bank_repository import get_bank_transaction, insert_bank_transaction
+from chexr.bank.bank_repository import insert_bank_transaction
+from chexr.bank.schema import BankTransaction
+from chexr.core.config import settings
+from chexr.core.database import get_database
+from chexr.core.queue import send_message
 
 ## FIXME will be recovered by authentication
 BANK_ID = "BANKID"

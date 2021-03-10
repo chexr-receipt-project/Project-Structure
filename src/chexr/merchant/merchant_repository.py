@@ -1,5 +1,5 @@
 from typing import Optional
-from ..schema import Transaction
+from .schema import Transaction
 from odmantic import AIOEngine
 from logging import info
 from pymongo import ASCENDING

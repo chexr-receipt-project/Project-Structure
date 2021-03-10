@@ -4,7 +4,7 @@ from typing import Optional
 from odmantic import AIOEngine
 from pymongo import ASCENDING
 
-from ..schema import BankTransaction
+from .schema import BankTransaction
 
 
 async def initialize_schema(database: AIOEngine):
