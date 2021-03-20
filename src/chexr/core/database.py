@@ -3,6 +3,7 @@ from .config import settings
 from odmantic import AIOEngine
 from chexr.merchant import merchant_repository
 from chexr.bank import bank_repository
+from chexr.matching import matching_repository
 from logging import info
 
 
@@ -24,8 +25,8 @@ async def startup_db():
     info("Initializing DB schema with indices")
     await merchant_repository.initialize_schema(db.engine)
     await bank_repository.initialize_schema(db.engine)
+    await matching_repository.initialize_schema(db.engine)
 
 
 def close_db():
     db.client.close()
-

@@ -1,6 +1,7 @@
 from logging import info
-from typing import Optional
+from typing import Optional, Tuple
 
+from bson import ObjectId
 from odmantic import AIOEngine
 from pymongo import ASCENDING
 
@@ -16,18 +17,28 @@ async def initialize_schema(database: AIOEngine):
         (+BankTransaction.transaction_id, ASCENDING)
     ], name="transaction_bank_id", unique=True)
 
+    await collection.create_index([(+BankTransaction.card.auth_code, ASCENDING)], name="transaction_bank_auth_code",
+                                  sparse=True)
 
-async def get_bank_transaction(database: AIOEngine, bank_id: str, transaction_id: str) -> Optional[
-                                   BankTransaction]:
+
+async def get_bank_transaction(database: AIOEngine, transaction_id: ObjectId = None,
+                               bank_transaction: Tuple[str, str] = None) -> Optional[BankTransaction]:
+    if id is not None:
+        return await database.find_one(BankTransaction, BankTransaction.id == transaction_id)
+
     return await database.find_one(BankTransaction,
-                                   (BankTransaction.transaction_id == transaction_id) &
-                                   (BankTransaction.bank_id == bank_id)
+                                   (BankTransaction.transaction_id == bank_transaction[0]) &
+                                   (BankTransaction.bank_id == bank_transaction[1])
                                    )
 
 
 async def insert_bank_transaction(database: AIOEngine, bank_id: str, transaction: BankTransaction) -> \
         Optional[BankTransaction]:
-    if transaction.id is not None:
-        raise ValueError("id must be empty")
-    transaction.bank_id = bank_id
-    return await database.save(transaction)
+    if transaction.id is None:
+        transaction.bank_id = bank_id
+        return await database.save(transaction)
+    raise ValueError("id must be empty")
+
+
+async def search_payment_by_auth_code(database: AIOEngine, auth_code: str):
+    return await database.find_one(BankTransaction, (BankTransaction.card.auth_code == auth_code))
