@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from mangum import Mangum
-from app.core.config import settings
-from app.merchant.routers.v1 import merchant_v1
-from app.bank.routers.v1 import bank_v1
-from app.core.database import startup_db, close_db
+from chexr.core.config import settings
+from .routers.merchant_v1 import merchant_v1
+from .routers.bank_v1 import bank_v1
+from chexr.core.database import startup_db, close_db
 import uvicorn
 
 

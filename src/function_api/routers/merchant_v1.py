@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends
-from fastapi.encoders import jsonable_encoder
 
-from ..model.merchant_repository import get_merchant_transaction, insert_merchant_transaction
-from ..schema import Transaction
-from ...core.database import get_database
-from ...core.utils import CHEXR_ENCODER
-from ...core.queue import send_message
-from ...core.config import settings
+from chexr.core.config import settings
+from chexr.core.database import get_database
+from chexr.core.queue import send_message
+from chexr.merchant.merchant_repository import insert_merchant_transaction
+from chexr.merchant.schema import Transaction
 
 ## FIXME will be recovered by authentication
 MERCHANT_ID = "MERCHANTID"
