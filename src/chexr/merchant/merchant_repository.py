@@ -41,6 +41,9 @@ async def search_merchant_transaction_by_auth_code(database: AIOEngine, auth_cod
 async def insert_merchant_transaction(database: AIOEngine, merchant_id: str, transaction: Transaction) -> \
         Optional[Transaction]:
     if transaction.id is not None:
-        raise ValueError("id must be empty")
+        saved_transaction = await database.find_one(Transaction, Transaction.id == transaction.id)
+        if saved_transaction is not None:
+            raise ValueError("Trying to insert an already defined merchant transaction id %s. Use update instead",
+                             transaction.id)
     transaction.merchant_id = merchant_id
     return await database.save(transaction)

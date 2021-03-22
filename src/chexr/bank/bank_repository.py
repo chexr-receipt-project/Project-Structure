@@ -34,10 +34,15 @@ async def get_bank_transaction(database: AIOEngine, transaction_id: ObjectId = N
 
 async def insert_bank_transaction(database: AIOEngine, bank_id: str, transaction: BankTransaction) -> \
         Optional[BankTransaction]:
-    if transaction.id is None:
-        transaction.bank_id = bank_id
-        return await database.save(transaction)
-    raise ValueError("id must be empty")
+
+    if transaction.id is not None:
+        saved_transaction = await database.find_one(BankTransaction, BankTransaction.id == transaction.id)
+        if saved_transaction is not None:
+            raise ValueError("Trying to insert an already defined bank transaction id %s. Use update instead",
+                             transaction.id)
+
+    transaction.bank_id = bank_id
+    return await database.save(transaction)
 
 
 async def search_payment_by_auth_code(database: AIOEngine, auth_code: str):

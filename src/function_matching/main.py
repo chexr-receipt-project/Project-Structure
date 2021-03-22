@@ -1,10 +1,13 @@
 from logging import info, error, debug
 import re
 from typing import Callable
+from asyncio import run
 
 from bson import ObjectId
+from odmantic import AIOEngine
+from pymongo.errors import DuplicateKeyError
 
-from chexr.core.database import get_database
+from chexr.core.database import get_database, startup_db
 from chexr.matching.matching_repository import register_match
 from chexr.merchant.merchant_repository import search_merchant_transaction_by_auth_code, get_merchant_transaction
 from chexr.bank.bank_repository import search_payment_by_auth_code, get_bank_transaction
@@ -12,9 +15,13 @@ from chexr.matching.schema import Matching
 
 __PATTERN_MERCHANT_TRANSACTION = "^transaction_id:(.+)"
 __PATTERN_BANK_TRANSACTION = "^bank_transaction_id:(.+)"
+__DATABASE_STARTED = False
 
 
 async def matching_queue_handler(event, _):
+    if not __DATABASE_STARTED:
+        await startup_db()
+
     records = event['Records']
     info(f"Processing {len(records)} messages on matching queue")
 
@@ -37,7 +44,7 @@ async def evaluate_and_call_if_match(pattern: str, value: str, function_to_call_
     return False
 
 
-async def process_merchant_transaction(transaction_id:str):
+async def process_merchant_transaction(transaction_id: str):
     debug("Processing merchant transaction id %s", transaction_id)
 
     database = get_database()
@@ -51,17 +58,17 @@ async def process_merchant_transaction(transaction_id:str):
         if payment.card:
             auth_code = payment.card.auth_code
             debug("Searching payment auth %s", auth_code)
-            bank_transaction = await search_payment_by_auth_code(auth_code)
+            bank_transaction = await search_payment_by_auth_code(database, auth_code)
             if bank_transaction is not None:
                 debug("Found payment auth %s, creating matching document", auth_code)
-                _match_transactions(transaction.merchant_id, transaction.transaction_id, bank_transaction.bank_id,
-                                    bank_transaction.transaction_id)
+                await _match_transactions(database, transaction.merchant_id, transaction.transaction_id,
+                                    bank_transaction.bank_id, bank_transaction.transaction_id)
             else:
                 info("Merchant transaction id %s has a payment auth code %s not found in database. Bank should send it"
                      " later", transaction_id, auth_code)
 
 
-async def process_bank_transaction(bank_transaction_id:str):
+async def process_bank_transaction(bank_transaction_id: str):
     debug("Processing bank transaction id %s", bank_transaction_id)
 
     database = get_database()
@@ -77,7 +84,7 @@ async def process_bank_transaction(bank_transaction_id:str):
 
     debug("Found bank transaction, searching for merchant transaction")
 
-    merchant_transaction = await search_merchant_transaction_by_auth_code(bank_transaction.card.auth_code)
+    merchant_transaction = await search_merchant_transaction_by_auth_code(database, bank_transaction.card.auth_code)
 
     if not merchant_transaction:
         info("Bank transaction %s has a payment auth code %s without a merchant transaction. Merchant should send it "
@@ -85,20 +92,20 @@ async def process_bank_transaction(bank_transaction_id:str):
         return
 
     debug("Found merchant transaction %s, creating matching document", merchant_transaction.id)
-    await _match_transactions(merchant_transaction.merchant_id, merchant_transaction.transaction_id,
+    await _match_transactions(database, merchant_transaction.merchant_id, merchant_transaction.transaction_id,
                               bank_transaction.bank_id, bank_transaction.transaction_id)
 
 
-async def _match_transactions(merchant_id:str, merchant_transaction_id:str, bank_id:str, bank_transaction_id:str):
+async def _match_transactions(database: AIOEngine, merchant_id: str, merchant_transaction_id: str, bank_id: str,
+                              bank_transaction_id: str):
     new_matching = Matching(
         merchant_id=merchant_id,
         merchant_transaction_id=merchant_transaction_id,
         bank_transaction_id=bank_transaction_id,
-        bank_id= bank_id
+        bank_id=bank_id
     )
 
-    database = get_database()
-
-    await register_match(database, new_matching)
-
-
+    try:
+        await register_match(database, new_matching)
+    except DuplicateKeyError:
+        debug("Matching already registered, ignoring")
