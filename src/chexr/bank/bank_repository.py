@@ -5,7 +5,7 @@ from bson import ObjectId
 from odmantic import AIOEngine
 from pymongo import ASCENDING
 
-from .schema import BankTransaction
+from .schema import BankTransaction, Bank
 
 
 async def initialize_schema(database: AIOEngine):
@@ -47,3 +47,7 @@ async def insert_bank_transaction(database: AIOEngine, bank_id: str, transaction
 
 async def search_payment_by_auth_code(database: AIOEngine, auth_code: str):
     return await database.find_one(BankTransaction, (BankTransaction.card.auth_code == auth_code))
+
+
+async def list_banks(database: AIOEngine):
+    return await database.find(Bank)

@@ -1,7 +1,10 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from odmantic import Field, Model, EmbeddedModel
+from pydantic.main import BaseModel
+
+from chexr.merchant.schema import TransactionPayment, TransactionItem
 
 
 class Card(EmbeddedModel):
@@ -30,3 +33,23 @@ class BankTransaction(Model):
     linkedTransactionId: str = Field(..., description="If this transaction is linked to a previous bank transaction you"
                                                       " have sent then the bankTransactionId used then can be "
                                                       "populated here.")
+
+class BankReceipt(BaseModel):
+    """ Receipt sent to the bank """
+    bank_transaction_id: str
+    merchant_transaction_id: str
+    amount: float = Field(..., description="Total amount for this transaction. Include all taxes and discounts", )
+    currency: str = Field(..., description="The ISO-4217 code of the currency", regex="^[A-Z]{3}$")
+    transaction_date: datetime = Field(description="The full date time (RFC3339), at second resolution or better. "
+                                                   "This must be the transaction authorization date - not the "
+                                                   "settlement date.")
+    tax: Optional[float]
+    payments: List[TransactionPayment]
+    items: List[TransactionItem]
+
+
+class Bank(Model):
+    """Entity that represent a bank and its data"""
+    url_upload_receipts: str
+    jws_signature: str
+    bank_name: str

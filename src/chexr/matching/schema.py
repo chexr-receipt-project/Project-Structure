@@ -11,3 +11,7 @@ class Matching(Model):
     bank_id: str
     matching_date: datetime = Field(default_factory=datetime.utcnow)
     sent_to_bank: str = False
+
+    def __str__(self):
+        return f"matching({self.bank_id},{self.bank_transaction_id},{self.merchant_id},{self.merchant_transaction_id})"
+
