@@ -1,6 +1,6 @@
 from logging import info, error
-import aiohttp
 
+import aiohttp
 from odmantic import AIOEngine
 
 from chexr.bank.bank_repository import list_banks
@@ -13,7 +13,7 @@ from chexr.merchant.merchant_repository import get_merchant_transaction
 __DATABASE_STARTED = False
 
 
-async def matching_queue_handler(_, __):
+async def send_bank_receipt(_, __):
     if not __DATABASE_STARTED:
         await startup_db()
 
@@ -22,7 +22,7 @@ async def matching_queue_handler(_, __):
     database = get_database()
 
     for bank in await list_banks(database):
-        process_receipts_to_bank(database, bank)
+        await process_receipts_to_bank(database, bank)
 
     info("Finished function to send receipts")
 
@@ -30,7 +30,7 @@ async def matching_queue_handler(_, __):
 async def process_receipts_to_bank(database: AIOEngine, bank: Bank):
     info("Processing receipts to bank %s", bank.bank_name)
     for matching in await search_unsent_matching_by_bank(database, bank):
-        process_matching(database, bank, matching)
+        await process_matching(database, bank, matching)
     info("Finished processing bank %s", bank.bank_name)
 
 
@@ -38,7 +38,8 @@ async def process_matching(database: AIOEngine, bank: Bank, matching: Matching):
     try:
         info("Processing %s", matching)
         merchant_transaction = await get_merchant_transaction(database,
-                                                              (matching.merchant_id, matching.merchant_transaction_id))
+                                                              merchant_transaction=(matching.merchant_id,
+                                                                                    matching.merchant_transaction_id))
 
         receipt = BankReceipt(
             bank_transaction_id=matching.bank_transaction_id,
@@ -53,11 +54,11 @@ async def process_matching(database: AIOEngine, bank: Bank, matching: Matching):
 
         await send_receipt_to_bank(bank, receipt)
 
-        await mark_matching_as_sent(matching)
+        await mark_matching_as_sent(database, matching)
 
         info("Matching processed %s", matching)
-    except:
-        error("Matching %s got an error", matching)
+    except Exception as e:
+        error("Matching %s got an error: %s", matching, e)
 
 
 async def send_receipt_to_bank(bank: Bank, receipt: BankReceipt):
@@ -73,4 +74,3 @@ async def send_receipt_to_bank(bank: Bank, receipt: BankReceipt):
             if response.status != 200:
                 raise Exception(f"Bank url {bank.url_upload_receipts} send {response.status} when sending the receipt. "
                                 f"Body: {response.content} ")
-

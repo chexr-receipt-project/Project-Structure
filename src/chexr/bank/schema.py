@@ -30,9 +30,10 @@ class BankTransaction(Model):
     amount: float
     isRefund: bool = Field(False, description="Is this transaction a refund of a previous transaction")
     isReversal: bool = Field(False, description="Is this transaction a reversal of a previous transaction")
-    linkedTransactionId: str = Field(..., description="If this transaction is linked to a previous bank transaction you"
-                                                      " have sent then the bankTransactionId used then can be "
-                                                      "populated here.")
+    linkedTransactionId: Optional[str] = Field(description="If this transaction is linked to a previous bank "
+                                                           "transaction you have sent then the bankTransactionId "
+                                                           "used then can be populated here.")
+
 
 class BankReceipt(BaseModel):
     """ Receipt sent to the bank """
