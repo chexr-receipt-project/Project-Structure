@@ -40,7 +40,7 @@ class TransactionItem(EmbeddedModel):
     category: str
     quantity: float = Field(description="Quantity purchases. It can be in fractions. Use the field `unity` if you "
                                           "want to append a unity")
-    unity: str = Field(description="The unity that should be appended to the quantity. Eg `kg`", min_length=1)
+    unity: Optional[str] = Field(description="The unity that should be appended to the quantity. Eg `kg`", min_length=1)
     price: float = Field(description="The amount of a single unit of the item, including all taxes")
     tax: float = Field(description="The tax of a single unit")
     # There are a lot more attributes to add

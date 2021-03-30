@@ -24,12 +24,12 @@ async def get_merchant_transaction(database: AIOEngine, transaction_id: ObjectId
                                    merchant_transaction: Tuple[str,str] = None) -> Optional[
                                    Transaction]:
 
-    if id is not None:
+    if transaction_id is not None:
         return await database.find_one(Transaction, Transaction.id == transaction_id)
 
     return await database.find_one(Transaction,
-                                   (Transaction.transaction_id == merchant_transaction[0]) &
-                                   (Transaction.merchant_id == merchant_transaction[1])
+                                   (Transaction.merchant_id == merchant_transaction[0]) &
+                                   (Transaction.transaction_id == merchant_transaction[1])
                                    )
 
 
