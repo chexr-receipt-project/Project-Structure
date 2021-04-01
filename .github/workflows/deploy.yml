@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.8'
@@ -20,3 +20,12 @@ jobs:
       run: cd packages && zip -r ../deploy.zip .
     - name: Zip source
       run: src/ && zip -g -r ../deploy.zip
+    - name: Deploy
+      uses: zdurham/s3-upload-github-action@master
+    env:
+      FILE: ./deploy.zip
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      S3_KEY: ${{ secrets.S3_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
