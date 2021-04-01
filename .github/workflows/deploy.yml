@@ -19,7 +19,7 @@ jobs:
     - name: Zip dependencies
       run: cd packages && zip -r ../deploy.zip .
     - name: Zip source
-      run: src/ && zip -g -r ../deploy.zip
+      run: cd src/ && zip -g -r ../deploy.zip
     - name: Deploy
       uses: zdurham/s3-upload-github-action@master
     env:
