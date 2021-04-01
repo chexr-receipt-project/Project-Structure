@@ -16,3 +16,7 @@ jobs:
         python-version: '3.8'
     - name: Install dependencies
       run: pip install -r requirements.txt --target ./packages
+    - name: Zip dependencies
+      run: cd packages && zip -r ../deploy.zip .
+    - name: Zip source
+      run: src/ && zip -g -r ../deploy.zip
