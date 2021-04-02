@@ -23,18 +23,18 @@ jobs:
     - name: Deploy S3
       uses: zdurham/s3-upload-github-action@master
     - name: Deploy API
-      run: aws lambda update-function-code --function-name $FUNCION_NAME_API --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
+      run: aws lambda update-function-code --function-name $FUNCTION_NAME_API --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
     - name: Deploy Matching Function
-      run: aws lambda update-function-code --function-name $FUNCION_NAME_MATCHING --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
+      run: aws lambda update-function-code --function-name $FUNCTION_NAME_MATCHING --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
     - name: Deploy Send Receipt Function
-      run: aws lambda update-function-code --function-name $FUNCION_NAME_SEND_RECEIPT --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
+      run: aws lambda update-function-code --function-name $FUNCTION_NAME_SEND_RECEIPT --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
     env:
       FILE: ./deploy.zip
       AWS_REGION: ${{ secrets.AWS_REGION }}
       S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       S3_KEY: deploy/build_${{ github.sha }}.zip
-      FUNCION_NAME_API: ${{ secrets.function_name_api }}
-      FUNCION_NAME_MATCHING: ${{ secrets.function_name_matching }}
-      FUNCION_NAME_SEND_RECEIPT: ${{ secrets.function_name_send_receipt }}
+      FUNCTION_NAME_API: ${{ secrets.function_name_api }}
+      FUNCTION_NAME_MATCHING: ${{ secrets.function_name_matching }}
+      FUNCTION_NAME_SEND_RECEIPT: ${{ secrets.function_name_send_receipt }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
