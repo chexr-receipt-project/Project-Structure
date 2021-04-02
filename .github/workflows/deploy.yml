@@ -26,6 +26,6 @@ jobs:
       FILE: ./deploy.zip
       AWS_REGION: ${{ secrets.AWS_REGION }}
       S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-      S3_KEY: deploy/build_$GITHUB_SHA.zip
+      S3_KEY: deploy/build_${{ env.GITHUB_SHA }}.zip
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
