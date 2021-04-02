@@ -21,7 +21,7 @@ jobs:
     - name: Zip source
       run: cd src && zip -g -r ../deploy.zip .
     - name: Deploy S3
-      uses: zdurham/s3-upload-github-action@master
+      run: aws s3 cp ./deploy.zip s3://$S3_BUCKET/$S3_KEY
     - name: Deploy API
       run: aws lambda update-function-code --function-name $FUNCTION_NAME_API --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
     - name: Deploy Matching Function
@@ -29,7 +29,6 @@ jobs:
     - name: Deploy Send Receipt Function
       run: aws lambda update-function-code --function-name $FUNCTION_NAME_SEND_RECEIPT --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
     env:
-      FILE: ./deploy.zip
       AWS_REGION: ${{ secrets.AWS_REGION }}
       S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       S3_KEY: deploy/build_${{ github.sha }}.zip
