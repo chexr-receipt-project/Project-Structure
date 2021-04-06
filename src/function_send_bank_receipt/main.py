@@ -16,7 +16,7 @@ __DATABASE_STARTED = False
 
 def handler(event,context):
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(process_receipts_to_bank())
+    return loop.run_until_complete(send_bank_receipt())
 
 
 async def send_bank_receipt():
