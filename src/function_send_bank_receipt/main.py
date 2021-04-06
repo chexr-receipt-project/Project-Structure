@@ -1,6 +1,7 @@
 from logging import info, error
 
 import aiohttp
+import asyncio
 from odmantic import AIOEngine
 
 from chexr.bank.bank_repository import list_banks
@@ -13,7 +14,12 @@ from chexr.merchant.merchant_repository import get_merchant_transaction
 __DATABASE_STARTED = False
 
 
-async def send_bank_receipt(_, __):
+def handler(event,context):
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(process_receipts_to_bank())
+
+
+async def send_bank_receipt():
     if not __DATABASE_STARTED:
         await startup_db()
 
