@@ -9,7 +9,7 @@ sqs = boto3.client("sqs", config=aws_config)
 
 
 def send_message(queue_name, body, attributes={}) -> str:
-    info("Sending message [%s] to queue [%s]", body, queue_name)
+    print(f"Sending message [{body}] to queue [{queue_name}]", body, queue_name)
     return sqs.send_message(
         QueueUrl=queue_name,
         MessageAttributes=attributes,

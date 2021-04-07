@@ -21,9 +21,9 @@ merchant_v1 = APIRouter(
 # based on https://developers.tryflux.com/#operation/MerchantPost
 @merchant_v1.put("/transaction", response_model=Transaction)
 async def new_transaction(transaction: Transaction, database=Depends(get_database)):
-    info("Saving new transaction")
+    print("Saving new transaction")
     saved_transaction = await insert_merchant_transaction(database, MERCHANT_ID, transaction)
-    info("Transaction saved. Sending matching message")
+    print("Transaction saved. Sending matching message")
     send_message(settings.MATCHING_QUEUE_URL, f'transaction_id:{saved_transaction.id}')
-    info("Message sent, returning saved transaction")
+    print("Message sent, returning saved transaction")
     return saved_transaction
