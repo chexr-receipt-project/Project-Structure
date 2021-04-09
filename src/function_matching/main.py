@@ -1,3 +1,4 @@
+import asyncio
 from logging import info, error, debug
 import re
 from typing import Callable
@@ -18,7 +19,12 @@ __PATTERN_BANK_TRANSACTION = "^bank_transaction_id:(.+)"
 __DATABASE_STARTED = False
 
 
-async def matching_queue_handler(event, _):
+def handler(event,context):
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(matching_queue_handler(event))
+
+
+async def matching_queue_handler(event):
     if not __DATABASE_STARTED:
         await startup_db()
 

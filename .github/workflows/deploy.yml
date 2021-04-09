@@ -1,0 +1,39 @@
+name: deploy-aws-lambda
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: pip install -r requirements.txt --target ./packages
+    - name: Zip dependencies
+      run: cd packages && zip -r ../deploy.zip .
+    - name: Zip source
+      run: cd src && zip -g -r ../deploy.zip .
+    - name: Deploy S3
+      run: aws s3 cp ./deploy.zip s3://$S3_BUCKET/$S3_KEY
+    - name: Deploy API
+      run: aws lambda update-function-code --function-name $FUNCTION_NAME_API --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
+    - name: Deploy Matching Function
+      run: aws lambda update-function-code --function-name $FUNCTION_NAME_MATCHING --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
+    - name: Deploy Send Receipt Function
+      run: aws lambda update-function-code --function-name $FUNCTION_NAME_SEND_RECEIPT --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-key $S3_KEY
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      S3_KEY: deploy/build_${{ github.sha }}.zip
+      FUNCTION_NAME_API: ${{ secrets.function_name_api }}
+      FUNCTION_NAME_MATCHING: ${{ secrets.function_name_matching }}
+      FUNCTION_NAME_SEND_RECEIPT: ${{ secrets.function_name_send_receipt }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
