@@ -80,3 +80,6 @@ async def send_receipt_to_bank(bank: Bank, receipt: BankReceipt):
             if response.status != 200:
                 raise Exception(f"Bank url {bank.url_upload_receipts} send {response.status} when sending the receipt. "
                                 f"Body: {response.content} ")
+
+if __name__ == '__main__':
+    asyncio.run(send_bank_receipt())
