@@ -56,5 +56,13 @@ async def insert_merchant_transaction(database: AIOEngine, merchant_id: str, tra
     return await database.save(transaction)
 
 
+async def merge_merchant(database: AIOEngine, merchant: Merchant):
+    return await database.save(merchant)
+
+
+async def list_merchants(database: AIOEngine):
+    return await database.find(Merchant)
+
+
 async def find_merchant_by_client_id(database: AIOEngine, client_id: str):
     return await database.find_one(Merchant, Merchant.client_id == client_id)
