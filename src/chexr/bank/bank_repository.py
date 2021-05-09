@@ -20,6 +20,13 @@ async def initialize_schema(database: AIOEngine):
     await collection.create_index([(+BankTransaction.card.auth_code, ASCENDING)], name="transaction_bank_auth_code",
                                   sparse=True)
 
+    bank_collection = database.get_collection(Bank)
+    await bank_collection.create_index(
+        [(+Bank.client_id, ASCENDING)],
+        name="bank_client_id",
+        unique=True
+    )
+
 
 async def get_bank_transaction(database: AIOEngine, transaction_id: ObjectId = None,
                                bank_transaction: Tuple[str, str] = None) -> Optional[BankTransaction]:
@@ -32,7 +39,7 @@ async def get_bank_transaction(database: AIOEngine, transaction_id: ObjectId = N
                                    )
 
 
-async def insert_bank_transaction(database: AIOEngine, bank_id: str, transaction: BankTransaction) -> \
+async def insert_bank_transaction(database: AIOEngine, bank_id: ObjectId, transaction: BankTransaction) -> \
         Optional[BankTransaction]:
 
     if transaction.id is not None:
@@ -51,3 +58,7 @@ async def search_payment_by_auth_code(database: AIOEngine, auth_code: str):
 
 async def list_banks(database: AIOEngine):
     return await database.find(Bank)
+
+
+async def find_bank_by_client_id(database: AIOEngine, client_id: str):
+    return await database.find_one(Bank, Bank.client_id == client_id)

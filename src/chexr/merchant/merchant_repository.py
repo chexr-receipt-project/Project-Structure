@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 
 from bson import ObjectId
 
-from .schema import Transaction
+from .schema import Transaction, Merchant
 from odmantic import AIOEngine
 from logging import info
 from pymongo import ASCENDING
@@ -18,6 +18,13 @@ async def initialize_schema(database: AIOEngine):
     ], name="transaction_merchant_id", unique=True)
 
     await collection.create_index("payments.card.auth_code", name="transaction_merchant_auth_code", sparse=True)
+
+    merchant_collection = database.get_collection(Merchant)
+    await merchant_collection.create_index(
+        [(+Merchant.client_id, ASCENDING)],
+        name="merchant_client_id",
+        unique=True
+    )
 
 
 async def get_merchant_transaction(database: AIOEngine, transaction_id: ObjectId = None,
@@ -47,3 +54,7 @@ async def insert_merchant_transaction(database: AIOEngine, merchant_id: str, tra
                              transaction.id)
     transaction.merchant_id = merchant_id
     return await database.save(transaction)
+
+
+async def find_merchant_by_client_id(database: AIOEngine, client_id: str):
+    return await database.find_one(Merchant, Merchant.client_id == client_id)
