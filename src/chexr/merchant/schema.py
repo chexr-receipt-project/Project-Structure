@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from odmantic import Field, Model, EmbeddedModel
+from odmantic import Field, Model, EmbeddedModel, ObjectId
 
 
 class TransactionPaymentType(str,Enum):
@@ -71,7 +71,7 @@ class Address(GeographicPoint):
 
 class Transaction(Model):
     transaction_id: str = Field(..., description="Merchant unique transaction id", min_length=1)
-    merchant_id: Optional[str]
+    merchant_id: Optional[ObjectId]
     store_id: str = Field(..., description="Store unique identifier. Use a unique identifier if it is a single store "
                                            "merchant", min_length=1)
     terminal_id: Optional[str] = Field(description="Optional value to uniquely identify different terminals in the "
@@ -91,6 +91,10 @@ class Transaction(Model):
     payments: List[TransactionPayment]
     status: TransactionStatus = TransactionStatus.COMPLETED
 
+
+class Merchant(Model):
+    client_id: str
+    name: str
 
 
 

@@ -5,9 +5,7 @@ from chexr.bank.schema import BankTransaction
 from chexr.core.config import settings
 from chexr.core.database import get_database
 from chexr.core.queue import send_message
-
-## FIXME will be recovered by authentication
-BANK_ID = "BANKID"
+from ..utils import get_logged_bank
 
 bank_v1 = APIRouter(
     prefix="/bank/v1",
@@ -18,9 +16,9 @@ bank_v1 = APIRouter(
 
 # based on https://developers.tryflux.com/#operation/MerchantPost
 @bank_v1.put("/transaction", response_model=BankTransaction)
-async def new_transaction(transaction: BankTransaction, database=Depends(get_database)):
+async def new_transaction(transaction: BankTransaction, bank=Depends(get_logged_bank), database=Depends(get_database)):
     """ Add a new transaction from the merchant"""
-    saved_transaction = await insert_bank_transaction(database, BANK_ID, transaction)
+    saved_transaction = await insert_bank_transaction(database, bank.id, transaction)
 
     send_message(settings.MATCHING_QUEUE_URL, f'bank_transaction_id:{saved_transaction.id}')
 
