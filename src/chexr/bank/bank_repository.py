@@ -56,6 +56,10 @@ async def search_payment_by_auth_code(database: AIOEngine, auth_code: str):
     return await database.find_one(BankTransaction, (BankTransaction.card.auth_code == auth_code))
 
 
+async def merge_bank(database: AIOEngine, bank: Bank):
+    return await database.save(bank)
+
+
 async def list_banks(database: AIOEngine):
     return await database.find(Bank)
 
