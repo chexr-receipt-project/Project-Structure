@@ -1,0 +1,75 @@
+= Chexr Receipts Project
+
+== Project Structure
+
+Before going into low level details, I recomend reading the link:https://github.com/chexr-receipt-project/docs/tree/master/architectural[architectural + requirements docs].
+
+All production-ready source code is stored in `src` folder. This folder, plus dependencies, is the root folder of the Python application.
+
+The project runs using AWS Lambda environment and has 3 functions deplyed: _function_api_, _function_matching_ and _function_send_bank_receipt_. The lambda is configured in link:https://github.com/chexr-receipt-project/infra[infrastructure project], which configures the handle of each one.
+
+=== Function API
+
+The function API covers the following use cases: `UC2`, `UC3`, `UC8`, `UC9`.
+
+This function handles all Rest API endpoints available by the application and was developed using `FastAPI` framework.
+
+Please refer to open api file for proper specification of each endpoint.
+
+=== Function Matching
+
+The matching function covers `UC4` use case.
+
+The matching function is triggered by a queue that notifies when a new merchant or bank receipt is stored in the database.
+
+This function then will check if the received receipt have a match with another receipt. Eg.: if it's a Bank receipt, will search for a Merchant Receipt with the same auth code. If it's a Merchant receipt, will search for a Bank receipt with the same auth code.
+
+If a match is found, this function will store it on the _matching_ collection.
+
+=== Function Send Bank Receipt
+
+This function is triggered by a scheduler and currently is running every minute (frequency can be changed in terraform project). This function will search for every not sent matching, will load every bank and send the receipts based on bank specification.
+
+Nowadays, this function only sends via simple `POST` without any authentication. We are holding more details of future clients before doing complex data transfer with data encrypted and authentication.
+
+== Running Locally
+
+=== Setting up Database
+
+Locally you can run a MongoDB database, wich DocumentDB is compatible. The file `ROOT\docker-compose.yml` runs a MongoDB database as needed.
+
+=== Running API
+
+1. Set up a Python 3.8 Virtual Environment (VE)
+1. Install all dependencies on VE
+
+   \> pip install -r requirements.txt
+
+1. In folder `src` create a file `.env` with the following content:
+
+    PROJECT_NAME=Cherx Receipt
+    MATCHING_QUEUE_URL=$AWS_MATCHING_QUEUE_ARN
+    AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+    AWS_REGION=ap-south-1
+    # dev env
+    MONGO_URL=mongodb://localhost:27017/?retryWrites=false
+    MONGO_DATABASE=chexr
+
++
+You can try setup an AWS Queue emulator.
+
+1. Run the application
+
+    \> cd src
+    \src> uvicorn app.main:app --reload --env-file .env
+
+=== Running other functions
+
+The best way to run the other functions locally is using integration testing. Please check `test` folder for examples.
+
+== Testing
+
+
+
+== Continuous Integration
