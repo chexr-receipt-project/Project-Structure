@@ -35,7 +35,7 @@ class BankTransaction(Model):
                                                            "used then can be populated here.")
 
 
-class BankReceipt(BaseModel):
+class BankReceipt(Model):
     """ Receipt sent to the bank """
     bank_transaction_id: str
     merchant_transaction_id: str
