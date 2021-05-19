@@ -39,5 +39,5 @@ async def mark_matching_as_sent(database: AIOEngine, matching: Matching):
     await database.save(matching)
 
 
-def list_matching(list_sent: bool, database: AIOEngine):
+async def list_matchings(list_sent: bool, database: AIOEngine):
     return await database.find(Matching, Matching.sent_to_bank == list_sent)
