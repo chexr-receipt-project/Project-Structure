@@ -5,9 +5,9 @@ from odmantic import Model, Field
 
 
 class Matching(Model):
-    merchant_id: str
+    merchant_id: ObjectId
     merchant_transaction_id: str
-    bank_transaction_id: str
+    bank_transaction_id: ObjectId
     bank_id: str
     matching_date: datetime = Field(default_factory=datetime.utcnow)
     sent_to_bank: bool = False
