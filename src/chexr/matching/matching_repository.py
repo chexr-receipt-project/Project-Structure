@@ -37,3 +37,7 @@ async def search_unsent_matching_by_bank(database: AIOEngine, bank: Bank) -> Ite
 async def mark_matching_as_sent(database: AIOEngine, matching: Matching):
     matching.sent_to_bank = True
     await database.save(matching)
+
+
+def list_matching(list_sent: bool, database: AIOEngine):
+    return await database.find(Matching, Matching.sent_to_bank == list_sent)

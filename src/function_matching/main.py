@@ -102,8 +102,8 @@ async def process_bank_transaction(bank_transaction_id: str):
                               bank_transaction.bank_id, bank_transaction.transaction_id)
 
 
-async def _match_transactions(database: AIOEngine, merchant_id: str, merchant_transaction_id: str, bank_id: str,
-                              bank_transaction_id: str):
+async def _match_transactions(database: AIOEngine, merchant_id: ObjectId, merchant_transaction_id: str,
+                              bank_id: ObjectId, bank_transaction_id: str):
     new_matching = Matching(
         merchant_id=merchant_id,
         merchant_transaction_id=merchant_transaction_id,
@@ -113,5 +113,6 @@ async def _match_transactions(database: AIOEngine, merchant_id: str, merchant_tr
 
     try:
         await register_match(database, new_matching)
+        info(f"New matching saved: {new_matching}")
     except DuplicateKeyError:
         debug("Matching already registered, ignoring")

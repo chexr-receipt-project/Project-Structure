@@ -7,6 +7,8 @@ from chexr.bank.schema import Bank
 from chexr.core.database import get_database
 from chexr.merchant.merchant_repository import merge_merchant, list_merchants
 from chexr.merchant.schema import Merchant
+from chexr.matching.schema import Matching
+from chexr.matching.matching_repository import list_matching
 from ..utils import verify_admin
 
 admin_v1 = APIRouter(
@@ -34,3 +36,8 @@ async def new_bank(merchant: Merchant, database=Depends(get_database)):
 @admin_v1.get("/merchant", response_model=List[Merchant], description="List merchants")
 async def list_bank(database=Depends(get_database)):
     return await list_merchants(database)
+
+
+@admin_v1.get("/matching", response_model=List[Matching], description="List all sent or unsent matchings")
+async def list_matching(list_sent=False, database=Depends(get_database)):
+    return await list_matching(list_sent, database)
