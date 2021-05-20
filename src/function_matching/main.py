@@ -19,7 +19,7 @@ __PATTERN_BANK_TRANSACTION = "^bank_transaction_id:(.+)"
 __DATABASE_STARTED = False
 
 
-def handler(event,context):
+def handler(event, context):
     loop = asyncio.get_event_loop()
     return loop.run_until_complete(matching_queue_handler(event))
 
