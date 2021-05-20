@@ -31,7 +31,7 @@ async def register_match(database: AIOEngine, matching: Matching):
 
 
 async def search_unsent_matching_by_bank(database: AIOEngine, bank: Bank) -> Iterable[Matching]:
-    return await database.find(Matching, (Matching.bank_id == str(bank.id)) & (Matching.sent_to_bank == False))
+    return await database.find(Matching, (Matching.bank_id == bank.id) & (Matching.sent_to_bank == False))
 
 
 async def mark_matching_as_sent(database: AIOEngine, matching: Matching):
