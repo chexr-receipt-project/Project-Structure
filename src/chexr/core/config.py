@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     MONGO_DATABASE: str
     MATCHING_QUEUE_URL: str
     AWS_REGION: str
-    LOG_LEVEL: str = logging.INFO
+    LOG_LEVEL: int = logging.INFO
 
     class Config:
         case_sensitive = True
