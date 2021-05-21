@@ -70,6 +70,11 @@ The best way to run the other functions locally is using integration testing. Pl
 
 == Testing
 
+This application does not have automated tests yet.
+
+However, we have two test files that helps testing _Matching_ and _Send Bank Receipt_ functions. The files are available in _test_ folder and must need to set environment variables declared in file `src/chexr/core/config.py`.
 
 
-== Continuous Integration
+== Continuous Deployment
+
+We have a continous deployment script that deploys any change made in branch master. Please check `.github` folder for more details.
