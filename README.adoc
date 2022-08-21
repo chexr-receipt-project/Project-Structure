@@ -1,4 +1,4 @@
-= Chexr Receipts Project
+= Digital Receipts Project
 
 == Project Structure
 
